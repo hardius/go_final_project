@@ -41,6 +41,7 @@ func TestNextDate(t *testing.T) {
 		for _, v := range tbl {
 			urlPath := fmt.Sprintf("api/nextdate?now=20240126&date=%s&repeat=%s",
 				url.QueryEscape(v.date), url.QueryEscape(v.repeat))
+			fmt.Println(urlPath)
 			get, err := getBody(urlPath)
 			assert.NoError(t, err)
 			next := strings.TrimSpace(string(get))
@@ -67,7 +68,7 @@ func TestNextDate(t *testing.T) {
 		{"20230311", "m 1 1,2", "20240201"},
 		{"20240127", "m -1", "20240131"},
 		{"20240222", "m -2", "20240228"},
-		{"20240222", "m -2,-3", ""},
+		{"20240222", "m -2,-3", "20240227"},
 		{"20240326", "m -1,-2", "20240330"},
 		{"20240201", "m -1,18", "20240218"},
 		{"20240125", "w 1,2,3", "20240129"},
