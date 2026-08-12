@@ -14,6 +14,9 @@ func Run() error {
 	http.Handle("/", http.FileServer(http.Dir(webDir)))
 
 	port := ":" + os.Getenv("TODO_PORT")
+	if port == ":" {
+		port = ":7540"
+	}
 
 	return http.ListenAndServe(port, nil)
 }

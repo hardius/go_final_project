@@ -4,19 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	"strconv"
 
 	"github.ccom/hardius/go_final_project/pkg/db"
 	"github.ccom/hardius/go_final_project/pkg/functions"
 )
 
-type IdJson struct {
-	ID string `json:"id"`
-}
-
-const layout = "20060102"
-
-func addTaskHandler(w http.ResponseWriter, r *http.Request) {
+func putHandler(w http.ResponseWriter, r *http.Request) {
 	var task db.Task
 
 	err := json.NewDecoder(r.Body).Decode(&task)
@@ -37,12 +30,11 @@ func addTaskHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := db.AddTask(&task)
+	err = db.UpdateTask(&task)
 	if err != nil {
 		writeJson(w, errWrap(err), http.StatusBadRequest)
 		return
 	}
 
-	idJson := IdJson{ID: strconv.Itoa(int(id))}
-	writeJson(w, idJson, http.StatusOK)
+	writeJson(w, struct{}{}, http.StatusOK)
 }

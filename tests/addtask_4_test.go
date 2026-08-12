@@ -14,11 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var counter int = 1
-
 func requestJSON(apipath string, values map[string]any, method string) ([]byte, error) {
-
-	fmt.Println("//requestJson")
 	var (
 		data []byte
 		err  error
@@ -55,17 +51,12 @@ func requestJSON(apipath string, values map[string]any, method string) ([]byte, 
 
 	resp, err = client.Do(req)
 	if err != nil {
-		fmt.Println("не пойдет сюда")
 		return nil, err
 	}
 
 	if resp.Body != nil {
 		defer resp.Body.Close()
 	}
-	data2, err := io.ReadAll(resp.Body)
-	fmt.Println("resp.Body:", string(data2), err) // здесь err == nil
-	// судя по всему data2 буквально имеет следующее значение:
-	// Task title is empty\n{"error":"Task title is empty"}
 	return io.ReadAll(resp.Body)
 }
 
@@ -77,13 +68,9 @@ func postJSON(apipath string, values map[string]any, method string) (map[string]
 
 	body, err := requestJSON(apipath, values, method)
 	if err != nil {
-		fmt.Println("requestJson", err)
 		return nil, err
 	}
-	fmt.Println("//postJson")
 	err = json.Unmarshal(body, &m)
-	fmt.Println("body:", string(body)) // пусто при первом задании
-	fmt.Println("jsonUnmarshal:", err)
 	return m, err
 }
 
@@ -106,8 +93,6 @@ func TestAddTask(t *testing.T) {
 		{"20240212", "Заголовок", "", "ooops"},
 	}
 	for _, v := range tbl {
-		fmt.Println(counter, ":", v)
-		counter++
 		m, err := postJSON("api/task", map[string]any{
 			"date":    v.date,
 			"title":   v.title,
@@ -115,7 +100,6 @@ func TestAddTask(t *testing.T) {
 			"repeat":  v.repeat,
 		}, http.MethodPost)
 		assert.NoError(t, err)
-		fmt.Println("ошибка postjson:", err)
 
 		e, ok := m["error"]
 		assert.False(t, !ok || len(fmt.Sprint(e)) == 0,

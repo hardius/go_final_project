@@ -1,18 +1,19 @@
-package api
+package functions
 
 import (
 	"errors"
-	"io"
-	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.ccom/hardius/go_final_project/pkg/db"
 )
 
 const initialMin = 100
+const layout = "20060102"
 
 func afterNow(date, now time.Time) bool {
-	return date.After(now)
+	return date.Format(layout) > now.Format(layout)
 }
 
 func lastDay(month time.Month, year int) int {
@@ -97,6 +98,10 @@ func ruleY(now, dstart time.Time, partRepeatStr []string) (string, error) {
 }
 
 func ruleW(now, dstart time.Time, partRepeatStr []string) (string, error) {
+	if len(partRepeatStr) != 2 {
+		return "", errors.New("Wrong use of ruleW.")
+	}
+
 	var date time.Time
 	if afterNow(dstart, now) {
 		date = dstart
@@ -138,6 +143,10 @@ func ruleW(now, dstart time.Time, partRepeatStr []string) (string, error) {
 }
 
 func ruleM(now, dstart time.Time, partRepeatStr []string) (string, error) {
+	if len(partRepeatStr) > 3 && len(partRepeatStr) < 2 {
+		return "", errors.New("Wrong use of ruleWM.")
+	}
+
 	var result string
 
 	var date time.Time
@@ -279,29 +288,34 @@ func ruleM(now, dstart time.Time, partRepeatStr []string) (string, error) {
 	return result, nil
 }
 
-func nextDateHandler(w http.ResponseWriter, r *http.Request) {
-	nowString := r.FormValue("now")
-	date := r.FormValue("date")
-	repeat := r.FormValue("repeat")
+func CheckDate(task *db.Task) error {
+	now := time.Now()
 
-	var now time.Time
-	if nowString == "" {
-		now = time.Now()
-	} else {
-		res, err := time.Parse(layout, nowString)
+	if task.Date == "" {
+		task.Date = now.Format(layout)
+	}
+
+	t, err := time.Parse(layout, task.Date)
+	if err != nil {
+		return err
+	}
+
+	var next string
+	if task.Repeat != "" {
+		next, err = NextDate(now, task.Date, task.Repeat)
 		if err != nil {
-			http.Error(w, "Wrong format of date.", http.StatusBadRequest)
-			return
+			return err
 		}
 
-		now = res
 	}
 
-	result, err := NextDate(now, date, repeat)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+	if afterNow(now, t) {
+		if len(task.Repeat) == 0 {
+			task.Date = now.Format(layout)
+		} else {
+			task.Date = next
+		}
 	}
 
-	io.WriteString(w, result)
+	return nil
 }

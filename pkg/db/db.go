@@ -2,7 +2,6 @@ package db
 
 import (
 	"database/sql"
-	"errors"
 	"os"
 
 	_ "modernc.org/sqlite"
@@ -21,9 +20,9 @@ CREATE INDEX scheduler_date ON scheduler(date);
 
 `
 
-func Init(dbFile string) error {
+func Init(dbFile string) (*sql.DB, error) {
 	if len(dbFile) == 0 {
-		return errors.New("wrong DB Filename")
+		dbFile = "scheduler.db"
 	}
 
 	_, err := os.Stat(dbFile)
@@ -36,16 +35,15 @@ func Init(dbFile string) error {
 
 	db, err = sql.Open("sqlite", dbFile)
 	if err != nil {
-		return err
+		return db, err
 	}
-	defer db.Close()
 
 	if install {
 		_, err = db.Exec(schema)
 		if err != nil {
-			return err
+			return db, err
 		}
 	}
 
-	return nil
+	return db, nil
 }
