@@ -3,7 +3,7 @@ package api
 import (
 	"net/http"
 
-	"github.com/hardius/go_final_project/pkg/db"
+	"github.ccom/hardius/go_final_project/pkg/db"
 )
 
 func getTaskHandler(w http.ResponseWriter, r *http.Request) {

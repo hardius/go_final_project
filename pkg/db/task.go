@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/hardius/go_final_project/pkg/functions"
+	"github.ccom/hardius/go_final_project/pkg/functions"
 )
 
 type Task struct {
