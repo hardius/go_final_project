@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.ccom/hardius/go_final_project/pkg/api"
+	"go_final_project/pkg/api"
 )
 
 func Run() error {

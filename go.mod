@@ -1,8 +1,9 @@
-module github.ccom/hardius/go_final_project
+module go_final_project
 
 go 1.25.6
 
 require (
+	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/stretchr/testify v1.11.1
 	modernc.org/sqlite v1.55.0

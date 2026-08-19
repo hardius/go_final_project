@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.ccom/hardius/go_final_project/pkg/functions"
+	"go_final_project/pkg/functions"
 )
 
 func nextDateHandler(w http.ResponseWriter, r *http.Request) {

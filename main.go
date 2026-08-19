@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.ccom/hardius/go_final_project/pkg/db"
-	"github.ccom/hardius/go_final_project/pkg/server"
+	"go_final_project/pkg/db"
+	"go_final_project/pkg/server"
 )
 
 func main() {

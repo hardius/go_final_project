@@ -5,9 +5,10 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	"time"
 
-	"github.ccom/hardius/go_final_project/pkg/db"
-	"github.ccom/hardius/go_final_project/pkg/functions"
+	"go_final_project/pkg/db"
+	"go_final_project/pkg/functions"
 )
 
 type IdJson struct {
@@ -32,7 +33,7 @@ func addTaskHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = functions.CheckDate(&task); err != nil {
+	if err = checkDate(&task); err != nil {
 		writeJson(w, errWrap(err), http.StatusBadRequest)
 		return
 	}
@@ -45,4 +46,36 @@ func addTaskHandler(w http.ResponseWriter, r *http.Request) {
 
 	idJson := IdJson{ID: strconv.Itoa(int(id))}
 	writeJson(w, idJson, http.StatusOK)
+}
+
+func checkDate(task *db.Task) error {
+	now := time.Now()
+
+	if task.Date == "" {
+		task.Date = now.Format(layout)
+	}
+
+	t, err := time.Parse(layout, task.Date)
+	if err != nil {
+		return err
+	}
+
+	var next string
+	if task.Repeat != "" {
+		next, err = functions.NextDate(now, task.Date, task.Repeat)
+		if err != nil {
+			return err
+		}
+
+	}
+
+	if functions.AfterNow(now, t) {
+		if len(task.Repeat) == 0 {
+			task.Date = now.Format(layout)
+		} else {
+			task.Date = next
+		}
+	}
+
+	return nil
 }

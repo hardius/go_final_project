@@ -5,8 +5,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.ccom/hardius/go_final_project/pkg/db"
-	"github.ccom/hardius/go_final_project/pkg/functions"
+	"go_final_project/pkg/db"
 )
 
 func putHandler(w http.ResponseWriter, r *http.Request) {
@@ -25,7 +24,7 @@ func putHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = functions.CheckDate(&task); err != nil {
+	if err = checkDate(&task); err != nil {
 		writeJson(w, errWrap(err), http.StatusBadRequest)
 		return
 	}

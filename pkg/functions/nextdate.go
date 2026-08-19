@@ -5,14 +5,12 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"github.ccom/hardius/go_final_project/pkg/db"
 )
 
 const initialMin = 100
 const layout = "20060102"
 
-func afterNow(date, now time.Time) bool {
+func AfterNow(date, now time.Time) bool {
 	return date.Format(layout) > now.Format(layout)
 }
 
@@ -69,7 +67,7 @@ func ruleD(now, dstart time.Time, partRepeatStr []string) (string, error) {
 
 	for {
 		dstart = dstart.AddDate(0, 0, val)
-		if afterNow(dstart, now) {
+		if AfterNow(dstart, now) {
 			result := dstart.Format(layout)
 			return result, nil
 		}
@@ -82,13 +80,13 @@ func ruleY(now, dstart time.Time, partRepeatStr []string) (string, error) {
 	}
 
 	var date time.Time
-	if afterNow(dstart, now) {
+	if AfterNow(dstart, now) {
 		result := dstart.AddDate(1, 0, 0).Format(layout)
 		return result, nil
 	}
 
 	date = dstart.AddDate(now.Year()-dstart.Year(), 0, 0)
-	if afterNow(date, now) {
+	if AfterNow(date, now) {
 		result := date.Format(layout)
 		return result, nil
 	}
@@ -103,7 +101,7 @@ func ruleW(now, dstart time.Time, partRepeatStr []string) (string, error) {
 	}
 
 	var date time.Time
-	if afterNow(dstart, now) {
+	if AfterNow(dstart, now) {
 		date = dstart
 	} else {
 		date = now
@@ -150,7 +148,7 @@ func ruleM(now, dstart time.Time, partRepeatStr []string) (string, error) {
 	var result string
 
 	var date time.Time
-	if afterNow(dstart, now) {
+	if AfterNow(dstart, now) {
 		date = dstart
 	} else {
 		date = now
@@ -161,7 +159,7 @@ func ruleM(now, dstart time.Time, partRepeatStr []string) (string, error) {
 	day := date.Day()
 	month := int(date.Month())
 
-	if len(partRepeatStr) > 2 {
+	if len(partRepeatStr) == 3 {
 
 		arguments2 := strings.Split(partRepeatStr[2], ",")
 
@@ -240,6 +238,9 @@ func ruleM(now, dstart time.Time, partRepeatStr []string) (string, error) {
 				}
 
 				if currDay < 0 {
+					if currDay < -2 {
+						return "", errors.New("Number of day cannot be under -2.")
+					}
 					currDay = lastDay + 1 + currDay
 				}
 
@@ -267,6 +268,9 @@ func ruleM(now, dstart time.Time, partRepeatStr []string) (string, error) {
 			}
 
 			if currDay < 0 {
+				if currDay < -2 {
+					return "", errors.New("Number of day cannot be under -2.")
+				}
 				currDay = lastDay + 1 + currDay
 			} else if currDay == 31 && lastDay != 31 {
 				currDay = currDay + lastDay
@@ -286,36 +290,4 @@ func ruleM(now, dstart time.Time, partRepeatStr []string) (string, error) {
 	}
 
 	return result, nil
-}
-
-func CheckDate(task *db.Task) error {
-	now := time.Now()
-
-	if task.Date == "" {
-		task.Date = now.Format(layout)
-	}
-
-	t, err := time.Parse(layout, task.Date)
-	if err != nil {
-		return err
-	}
-
-	var next string
-	if task.Repeat != "" {
-		next, err = NextDate(now, task.Date, task.Repeat)
-		if err != nil {
-			return err
-		}
-
-	}
-
-	if afterNow(now, t) {
-		if len(task.Repeat) == 0 {
-			task.Date = now.Format(layout)
-		} else {
-			task.Date = next
-		}
-	}
-
-	return nil
 }
