@@ -25,9 +25,11 @@ func addTask(t *testing.T, task task) string {
 }
 
 func getTasks(t *testing.T, search string) []map[string]string {
+
 	url := "api/tasks"
 	if Search {
 		url += "?search=" + search
+		fmt.Println("search:", search)
 	}
 	body, err := requestJSON(url, nil, http.MethodGet)
 	assert.NoError(t, err)
