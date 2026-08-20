@@ -1,6 +1,8 @@
 package api
 
 import (
+	"database/sql"
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -18,7 +20,12 @@ func deleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = db.DeleteTask(id)
 	if err != nil {
-		writeJson(w, errWrap(err), http.StatusInternalServerError)
+		status := http.StatusInternalServerError
+		if errors.Is(err, sql.ErrNoRows) {
+			status = http.StatusBadRequest
+		}
+
+		writeJson(w, errWrap(err), status)
 		return
 	}
 
