@@ -1,6 +1,9 @@
 package api
 
-import "net/http"
+import (
+	"errors"
+	"net/http"
+)
 
 func taskHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
@@ -12,5 +15,8 @@ func taskHandler(w http.ResponseWriter, r *http.Request) {
 		addTaskHandler(w, r)
 	case http.MethodDelete:
 		deleteTaskHandler(w, r)
+	default:
+		err := errors.New("This method isn't handled.")
+		writeJson(w, errWrap(err), http.StatusBadRequest)
 	}
 }
